@@ -6,3 +6,4 @@ export const MY_DEFECTS = 'https://cloud.appveen.com/api/c/XCRO/defects';
 export const MY_STORIES = 'https://cloud.appveen.com/api/c/XCRO/storyTask';
 export const GO_BACK = { name: 'Go Back', value: 'GO_BACK' };
 export const EXIT = { name: 'Exit', value: 'EXIT' };
+export const DEFECT_DETAILS = 'https://cloud.appveen.com/api/c/XCRO/defects';

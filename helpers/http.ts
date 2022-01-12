@@ -14,6 +14,11 @@ export async function post(url, body, header = {}) {
   return await axios(url, {
     method: 'POST',
     headers: {
+      'Content-Type': 'application/json',
+      Connection: 'keep-alive',
+      Pragma: 'no-cache',
+      'Cache-Control': 'no-cache',
+      redirect: 'follow',
       ...header,
     },
     data: JSON.stringify(body),
@@ -38,11 +43,16 @@ export async function get(url, header = {}, params = {}) {
   return await axios(url, {
     method: 'GET',
     headers: {
+      'Content-Type': 'application/json',
+      Connection: 'keep-alive',
+      Pragma: 'no-cache',
+      'Cache-Control': 'no-cache',
+      redirect: 'follow',
       ...header,
     },
     params,
   })
-    .then((resp): { status: any; data: any } => {
+    .then((resp) => {
       return { status: resp.status, data: resp.data };
     })
     .catch((e) => {

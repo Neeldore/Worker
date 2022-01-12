@@ -1,4 +1,10 @@
-import { EXIT, GO_BACK, MY_DEFECTS, MY_STORIES } from '../helpers/constants';
+import {
+  DEFECT_DETAILS,
+  EXIT,
+  GO_BACK,
+  MY_DEFECTS,
+  MY_STORIES,
+} from '../helpers/constants';
 import { cloudGet } from '../helpers/credManager';
 import {
   easyInquirer,
@@ -31,7 +37,7 @@ async function fetchMyDefects() {
       if (response && response.data && response.data.length) {
         return response.data;
       } else {
-        return Promise.reject('');
+        throw Error();
       }
     })
     .then((response) => {
@@ -39,7 +45,7 @@ async function fetchMyDefects() {
     })
     .then((ans) => {
       if (ans.defect === GO_BACK.value) {
-        Promise.reject('');
+        throw Error();
       } else {
         id = ans.defect;
         return odpDefectInquirer();
@@ -48,7 +54,10 @@ async function fetchMyDefects() {
     .then((tasks) => {
       task = tasks.task;
       console.log('id', id);
-    });
+      return getDefectDetails(id);
+    })
+    .then((resp) => console.log('resp ', resp))
+    .catch((e) => {});
 }
 
 async function fetchMyStories() {
@@ -59,7 +68,7 @@ async function fetchMyStories() {
       if (response && response.data && response.data.length) {
         return response.data;
       } else {
-        return Promise.reject('');
+        throw Error();
       }
     })
     .then((response) => {
@@ -67,7 +76,7 @@ async function fetchMyStories() {
     })
     .then((ans) => {
       if (ans.story === GO_BACK.value) {
-        Promise.reject('');
+        throw Error();
       } else {
         id = ans.story;
         return odpDefectInquirer();
@@ -76,7 +85,8 @@ async function fetchMyStories() {
     .then((tasks) => {
       task = tasks.task;
       console.log('id', id);
-    });
+    })
+    .catch((e) => {});
 }
 
 export function _fetchDefect() {
@@ -85,6 +95,10 @@ export function _fetchDefect() {
 
 export function _fetchStories() {
   return cloudGet(MY_STORIES, getDefaultFilter());
+}
+
+export function getDefectDetails(id) {
+  return cloudGet(`${DEFECT_DETAILS}/${id}`, { expanded: true });
 }
 
 function getDefaultFilter() {
