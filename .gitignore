@@ -1,0 +1,5 @@
+creds.ts
+node_modules
+.vscode
+dist
+dump.rdb
