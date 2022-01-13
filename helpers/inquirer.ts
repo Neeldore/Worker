@@ -2,6 +2,11 @@ import inquirer from 'inquirer';
 import { EXIT, GO_BACK } from './constants';
 import { serviceMapper } from './serviceMapper';
 
+inquirer.registerPrompt(
+  'autocomplete',
+  require('inquirer-autocomplete-prompt')
+);
+
 export const basicInquirer = (options: {
   type: any;
   name: any;
@@ -26,6 +31,7 @@ export const easyInquirer = (
   message = 'Make a selection',
   type = 'list'
 ) => {
+  choices.push(GO_BACK);
   return basicInquirer({
     type,
     name,
@@ -33,6 +39,17 @@ export const easyInquirer = (
     choices,
   });
 };
+
+export function autoCompleteInquirer(name, message, source) {
+  return inquirer.prompt([
+    {
+      type: 'autocomplete',
+      name,
+      message,
+      source,
+    },
+  ]);
+}
 
 export const odpBaseInquirer = () => {
   return basicInquirer({
@@ -53,9 +70,9 @@ export const odpDefectInquirer = () => {
     name: 'task',
     message: 'Select Task',
     choices: [
+      { name: 'Assign to QA', value: 'ATQ' },
       { name: 'Change status', value: 'CS' },
       { name: 'Peek', value: 'P' },
-      { name: 'Assign to QA', value: 'ATQ' },
       GO_BACK,
     ],
   });

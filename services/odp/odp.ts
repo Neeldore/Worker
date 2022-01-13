@@ -2,6 +2,7 @@ import { EXIT, GO_BACK } from '../../helpers/constants';
 import { odpBaseInquirer, odpDefectInquirer } from '../../helpers/inquirer';
 import { _throw } from '../../helpers/misc';
 import {
+  assignToQa,
   changeStatus,
   fetchEntities,
   getDefectDetails,
@@ -41,11 +42,10 @@ async function fetchMyDefects() {
       const fnMapper = {
         P: getDefectDetails,
         CS: changeStatus,
-        ATQ: getDefectDetails,
+        ATQ: assignToQa,
       };
       return fnMapper[task](id);
     })
-    .then((resp) => console.log('resp ', resp))
     .catch((e) => {});
 }
 
