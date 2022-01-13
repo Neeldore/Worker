@@ -5,6 +5,7 @@ import {
   GO_BACK,
   GET_CLOUD_USERS,
   GET_SERVICE_DEF,
+  STORY_DETAILS,
 } from '../../../helpers/constants';
 import { cloudGet, cloudPut } from './credManager';
 import {
@@ -26,27 +27,37 @@ export function _fetchStories(skipCheck = false) {
 export function getDefectDetails(id, skipCheck = false) {
   return cloudGet(`${DEFECT_DETAILS}/${id}`, { expand: true }, skipCheck);
 }
+export function getStoryDetails(id, skipCheck = false) {
+  return cloudGet(`${STORY_DETAILS}/${id}`, { expand: true }, skipCheck);
+}
 
-export function changeStatus(id) {
-  let defectDetails: any;
+export function changeStatus(id: string) {
+  let entityDetails: any;
   let status = '';
-  return getDefectDetails(id)
+  let isDefect = id.includes('DEF');
+  const detailsFn = isDefect ? getDefectDetails : getStoryDetails;
+  return detailsFn(id)
     .then((resp) =>
       resp && resp.data && resp.data._id
         ? resp.data
-        : _throw('cannot find defect')
+        : _throw('cannot find ' + isDefect ? 'Defect' : 'Story')
     )
     .then((resp) => {
-      defectDetails = resp;
-      return odpStatusesInquirer();
+      entityDetails = resp;
+      return odpStatusesInquirer(isDefect);
     })
     .then((ans) => {
       if (ans.status === GO_BACK.value) {
         _throw();
       }
       status = ans.status;
-      defectDetails.status = status;
-      return cloudPut(DEFECT_DETAILS, id, defectDetails, true);
+      entityDetails.status = status;
+      return cloudPut(
+        isDefect ? DEFECT_DETAILS : STORY_DETAILS,
+        id,
+        entityDetails,
+        true
+      );
     })
     .then((resp: any) =>
       resp.status === 200
@@ -57,72 +68,49 @@ export function changeStatus(id) {
 }
 
 export function assignToQa(id) {
-  let defectDetails: any;
+  let entityDetails: any;
   let nameOfQa: any = {};
   let serviceDef: Array<any> = [];
-  return Promise.all([getDefectDetails(id), getServiceDefinition()])
+  let isDefect = id.includes('DEF');
+  const detailsFn = isDefect ? getDefectDetails : getStoryDetails;
+
+  return Promise.all([detailsFn(id), getServiceDefinition(isDefect)])
     .then(([resp, _serviceDef]) => {
       serviceDef = _serviceDef;
       return resp && resp.data && resp.data._id
         ? resp.data
-        : _throw('cannot find defect');
+        : _throw('cannot find ' + isDefect ? 'Defect' : 'Story');
     })
     .then((resp) => {
-      defectDetails = resp;
+      entityDetails = resp;
       nameOfQa = resp.nameOfTheQa || {};
-      if (nameOfQa._id) {
-        return easyInquirer(
-          [
-            {
-              name: nameOfQa.name,
-              value: { _id: nameOfQa._id, name: nameOfQa.name },
-            },
-            { name: 'Someone else', value: 'SE' },
-          ],
-          'qa',
-          'assign to selected QA or someone else ?'
-        ).then((ans) => {
-          if (ans.qa === 'SE') {
-            return autoCompleteInquirer(
-              'qa',
-              'Type the name of the user',
-              userSource
-            );
-          } else {
-            return ans;
-          }
-        });
-      } else {
-        return autoCompleteInquirer(
-          'qa',
-          'Type the name of the user',
-          userSource
-        );
-      }
+      return getUser(nameOfQa);
     })
     .then((ans) => {
       nameOfQa = ans;
-      return basicInquirer({
-        type: 'checkbox',
-        name: 'components',
-        message: 'selected the components affected',
-        choices: [{ name: 'just web', value: 'xcro_web' }, ...serviceDef],
-      });
+      return getComponents(serviceDef);
     })
     .then((ans) => {
-      defectDetails.componentsAffected = ans.components;
-      defectDetails.status = 'Ready for QA';
-      defectDetails.newEnvironmentVariables = 'No';
-      defectDetails.newErrorMessages = 'No';
-      defectDetails.newMigrationScripts = 'No';
-      defectDetails.newSchemaChanges = 'No';
-      defectDetails.newSetupScripts = 'No';
-      defectDetails.assignedTo = { _id: nameOfQa._id };
-      return cloudPut(DEFECT_DETAILS, id, defectDetails, true);
+      entityDetails.componentsAffected = ans.components;
+      entityDetails.status = isDefect ? 'Ready for QA' : 'Completed';
+      entityDetails.newEnvironmentVariables = 'No';
+      entityDetails.newErrorMessages = 'No';
+      entityDetails.newMigrationScripts = 'No';
+      entityDetails.newSchemaChanges = 'No';
+      entityDetails.newSetupScripts = 'No';
+      entityDetails.assignedTo = { _id: nameOfQa._id };
+      return cloudPut(
+        isDefect ? DEFECT_DETAILS : STORY_DETAILS,
+        id,
+        entityDetails,
+        true
+      );
     })
     .then((resp: any) =>
       resp.status === 200
-        ? console.log(`\n Changed the status of ${id} to 'Ready for QA' \n`)
+        ? console.log(
+            `\n Changed the status of ${id} to ${entityDetails.status} \n`
+          )
         : console.log('\n Some error occured \n' + JSON.stringify(resp.data))
     )
     .catch((e) => {});
@@ -195,8 +183,13 @@ function userSource(_existinAnsers, name) {
   );
 }
 
-function getServiceDefinition() {
-  return cloudGet(GET_SERVICE_DEF, { select: 'definition' }).then((resp) => {
+function getServiceDefinition(isDefect) {
+  return cloudGet(
+    GET_SERVICE_DEF + '/' + (isDefect ? 'SRVC2022' : 'SRVC2020'),
+    {
+      select: 'definition',
+    }
+  ).then((resp) => {
     try {
       return resp.data.definition.find(
         (def) => def.key === 'componentsAffected'
@@ -204,5 +197,42 @@ function getServiceDefinition() {
     } catch {
       return [];
     }
+  });
+}
+
+function getUser(nameOfQa) {
+  if (nameOfQa._id) {
+    return easyInquirer(
+      [
+        {
+          name: nameOfQa.name,
+          value: { _id: nameOfQa._id, name: nameOfQa.name },
+        },
+        { name: 'Someone else', value: 'SE' },
+      ],
+      'qa',
+      'assign to selected QA or someone else ?'
+    ).then((ans) => {
+      if (ans.qa === 'SE') {
+        return autoCompleteInquirer(
+          'qa',
+          'Type the name of the user',
+          userSource
+        );
+      } else {
+        return ans;
+      }
+    });
+  } else {
+    return autoCompleteInquirer('qa', 'Type the name of the user', userSource);
+  }
+}
+
+function getComponents(serviceDef) {
+  return basicInquirer({
+    type: 'checkbox',
+    name: 'components',
+    message: 'selected the components affected',
+    choices: [{ name: 'just web', value: 'xcro_web' }, ...serviceDef],
   });
 }

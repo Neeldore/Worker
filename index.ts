@@ -28,7 +28,3 @@ client.then(async () => {
     process.exit(0);
   }
 });
-
-process.argv.forEach(function (val, index, array) {
-  console.log(index + ': ' + val);
-});

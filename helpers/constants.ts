@@ -7,6 +7,6 @@ export const MY_STORIES = 'https://cloud.appveen.com/api/c/XCRO/storyTask';
 export const GO_BACK = { name: 'Go Back', value: 'GO_BACK' };
 export const EXIT = { name: 'Exit', value: 'EXIT' };
 export const DEFECT_DETAILS = 'https://cloud.appveen.com/api/c/XCRO/defects';
+export const STORY_DETAILS = 'https://cloud.appveen.com/api/c/XCRO/storyTask';
 export const GET_CLOUD_USERS = 'https://cloud.appveen.com/api/c/XCRO/users';
-export const GET_SERVICE_DEF =
-  'https://cloud.appveen.com/api/a/sm/service/SRVC2022';
+export const GET_SERVICE_DEF = 'https://cloud.appveen.com/api/a/sm/service';

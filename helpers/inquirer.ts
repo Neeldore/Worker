@@ -78,9 +78,9 @@ export const odpDefectInquirer = () => {
   });
 };
 
-export const odpStatusesInquirer = () => {
-  return easyInquirer(
-    ['Awaiting PR Approval', 'Dev In Progress', 'Open', 'Cannot Reproduce'],
-    'status'
-  );
+export const odpStatusesInquirer = (isDefect) => {
+  const statuses = isDefect
+    ? ['Awaiting PR Approval', 'Dev In Progress', 'Open', 'Cannot Reproduce']
+    : ['In Progress', 'Awaiting PR Approval'];
+  return easyInquirer(statuses, 'status');
 };

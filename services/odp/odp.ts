@@ -6,6 +6,7 @@ import {
   changeStatus,
   fetchEntities,
   getDefectDetails,
+  getStoryDetails,
 } from './helpers/odphelper';
 
 export async function odp() {
@@ -63,7 +64,13 @@ async function fetchMyStories() {
     })
     .then((tasks) => {
       task = tasks.task;
-      console.log('id', id);
+      const fnMapper = {
+        P: async (id) => getStoryDetails(id).then((resp) => console.log(resp)),
+        CS: changeStatus,
+        ATQ: assignToQa,
+      };
+      console.log('task', task);
+      return fnMapper[task](id);
     })
     .catch((e) => {});
 }
