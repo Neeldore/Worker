@@ -8,16 +8,16 @@ import { cloudGet, cloudPut } from './credManager';
 import { easyInquirer, odpStatusesInquirer } from '../../../helpers/inquirer';
 import { _throw } from '../../../helpers/misc';
 
-export function _fetchDefect() {
-  return cloudGet(MY_DEFECTS, getDefaultFilter());
+export function _fetchDefect(skipCheck = false) {
+  return cloudGet(MY_DEFECTS, getDefaultFilter(), skipCheck);
 }
 
-export function _fetchStories() {
-  return cloudGet(MY_STORIES, getDefaultFilter());
+export function _fetchStories(skipCheck = false) {
+  return cloudGet(MY_STORIES, getDefaultFilter(), skipCheck);
 }
 
-export function getDefectDetails(id) {
-  return cloudGet(`${DEFECT_DETAILS}/${id}`, { expanded: true });
+export function getDefectDetails(id, skipCheck = false) {
+  return cloudGet(`${DEFECT_DETAILS}/${id}`, { expanded: true }, skipCheck);
 }
 
 export function changeStatus(id) {
@@ -34,11 +34,13 @@ export function changeStatus(id) {
     })
     .then((ans) => {
       defectDetails.status = ans.status;
-      return cloudPut(DEFECT_DETAILS, id, defectDetails);
+      return cloudPut(DEFECT_DETAILS, id, defectDetails, true);
     })
     .then((resp) => resp.status)
     .catch((e) => console.error(e));
 }
+
+
 
 export function getDefaultFilter() {
   return {

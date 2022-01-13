@@ -46,9 +46,7 @@ async function fetchMyDefects() {
       return fnMapper[task](id);
     })
     .then((resp) => console.log('resp ', resp))
-    .catch((e) => {
-      console.log('er', e);
-    });
+    .catch((e) => {});
 }
 
 async function fetchMyStories() {
