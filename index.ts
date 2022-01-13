@@ -12,7 +12,12 @@ client.then(async () => {
     if (ans.service !== EXIT.value) {
       await getService(ans.service)();
     } else {
-      process.exit(1);
+      process.exit(0);
     }
   }
+});
+
+process.on('SIGINT', () => {
+  console.log('You clicked Ctrl+C!');
+  process.exit(0);
 });

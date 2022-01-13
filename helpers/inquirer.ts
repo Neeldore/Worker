@@ -43,7 +43,6 @@ export const odpBaseInquirer = () => {
       { name: 'Fetch my defects', value: 'FD' },
       { name: 'Fetch my stories', value: 'FS' },
       GO_BACK,
-      EXIT,
     ],
   });
 };
@@ -58,7 +57,6 @@ export const odpDefectInquirer = () => {
       { name: 'Peek', value: 'P' },
       { name: 'Assign to QA', value: 'ATQ' },
       GO_BACK,
-      EXIT,
     ],
   });
 };
