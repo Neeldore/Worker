@@ -3,14 +3,14 @@ import {
   CLOUD_LOGIN,
   CLOUD_LOGIN_KEY,
 } from '../../../helpers/constants';
-import { cloudUsername, clouddPassword } from '../../../creds';
+import { cloudUsername, cloudPassword } from '../../../creds';
 import { get, post, put } from '../../../helpers/http';
 import { getKV, setKV } from '../../../helpers/redis';
 
 export async function cloudLogin() {
   return await post(CLOUD_LOGIN, {
     username: cloudUsername,
-    password: clouddPassword,
+    password: cloudPassword,
   }).then((resp: any) => {
     return resp.data.token;
   });
