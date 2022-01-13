@@ -19,12 +19,13 @@ client.then(async () => {
       }
     }
   } else {
-    if (process.argv[2] === 'readyForQA') {
-      await assignToQa(process.argv[3]);
-    }
-    if (process.argv[2] === 'changeStatus') {
-      await changeStatus(process.argv[3]);
-    }
+    const adhocFunctionMapper = {
+      readyForQA: () => assignToQa(process.argv[3]),
+      changeStatus: () => changeStatus(process.argv[3]),
+    };
+
+    await adhocFunctionMapper[process.argv[2]]();
+
     process.exit(0);
   }
 });

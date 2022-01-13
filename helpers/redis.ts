@@ -1,6 +1,5 @@
 import { createClient } from 'redis';
 import { REDIS } from './constants';
-import { defer, from, Observable, of } from 'rxjs';
 const client = createClient({
   url: REDIS,
 });

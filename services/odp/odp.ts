@@ -19,7 +19,7 @@ export async function odp() {
     if (ans.ODP === GO_BACK.value) {
       return;
     } else if (ans.ODP === EXIT.value) {
-      process.exit(1);
+      process.exit(0);
     } else {
       await functionMapper[ans.ODP]();
     }
