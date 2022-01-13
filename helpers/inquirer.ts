@@ -80,7 +80,7 @@ export const odpDefectInquirer = () => {
 
 export const odpStatusesInquirer = () => {
   return easyInquirer(
-    ['Dev In Progress', 'Open', 'Cannot Reproduce'],
+    ['Awaiting PR Approval', 'Dev In Progress', 'Open', 'Cannot Reproduce'],
     'status'
   );
 };
