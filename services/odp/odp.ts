@@ -40,7 +40,7 @@ async function fetchMyDefects() {
     .then((tasks) => {
       task = tasks.task;
       const fnMapper = {
-        P: getDefectDetails,
+        P: async (id) => getDefectDetails(id).then((resp) => console.log(resp)),
         CS: changeStatus,
         ATQ: assignToQa,
       };
