@@ -1,4 +1,4 @@
-import { basicInquirer } from '../helpers/inquirer';
+import { basicInquirer } from '../../helpers/inquirer';
 
 export function git() {
   return basicInquirer({

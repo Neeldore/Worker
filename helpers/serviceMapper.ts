@@ -1,5 +1,5 @@
-import { git } from '../services/git';
-import { odp } from '../services/odp';
+import { git } from '../services/git/git';
+import { odp } from '../services/odp/odp';
 
 export const serviceMapper = {
   Git: git,

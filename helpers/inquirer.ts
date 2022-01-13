@@ -62,3 +62,10 @@ export const odpDefectInquirer = () => {
     ],
   });
 };
+
+export const odpStatusesInquirer = () => {
+  return easyInquirer(
+    ['Dev In Progress', 'Open', 'Cannot Reproduce'],
+    'status'
+  );
+};

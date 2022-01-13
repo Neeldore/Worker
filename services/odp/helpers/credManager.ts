@@ -1,9 +1,11 @@
-import { CLOUD_CHECK, CLOUD_LOGIN, CLOUD_LOGIN_KEY } from './constants';
-import { cloudUsername, clouddPassword } from '../creds';
-import { get, post } from './http';
-import { getKV, setKV } from './redis';
-
-//Cloud
+import {
+  CLOUD_CHECK,
+  CLOUD_LOGIN,
+  CLOUD_LOGIN_KEY,
+} from '../../../helpers/constants';
+import { cloudUsername, clouddPassword } from '../../../creds';
+import { get, post, put } from '../../../helpers/http';
+import { getKV, setKV } from '../../../helpers/redis';
 
 export async function cloudLogin() {
   return await post(CLOUD_LOGIN, {
@@ -41,6 +43,42 @@ export async function cloudGet(url, params = {}) {
   return await getKV(CLOUD_LOGIN_KEY)
     .then((token) => {
       getPromise = get(url, { Authorization: token }, params);
+      return getPromise;
+    })
+    .then((response) => {
+      if (response.status === 200) {
+        return response;
+      } else {
+        return cloudCheck()
+          .then(() => getPromise)
+          .then((resp) => resp);
+      }
+    });
+}
+
+export async function cloudPost(url, body) {
+  let getPromise;
+  return await getKV(CLOUD_LOGIN_KEY)
+    .then((token) => {
+      getPromise = post(url, body, { Authorization: token });
+      return getPromise;
+    })
+    .then((response) => {
+      if (response.status === 200) {
+        return response;
+      } else {
+        return cloudCheck()
+          .then(() => getPromise)
+          .then((resp) => resp);
+      }
+    });
+}
+
+export async function cloudPut(url, id, body) {
+  let getPromise;
+  return await getKV(CLOUD_LOGIN_KEY)
+    .then((token) => {
+      getPromise = put(url, id, body, { Authorization: token });
       return getPromise;
     })
     .then((response) => {
