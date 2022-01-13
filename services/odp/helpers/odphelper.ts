@@ -146,15 +146,12 @@ export function getDefaultFilter() {
 }
 
 export function formatChoices(response) {
-  return [
-    ...response.map((defect) => ({
-      name: `${defect._id} - ${defect.summary} - ${defect.status} - ${
-        defect.release.name || defect.release._id
-      }`,
-      value: defect._id,
-    })),
-    ...[GO_BACK],
-  ];
+  return response.map((defect) => ({
+    name: `${defect._id} - ${defect.summary} - ${defect.status} - ${
+      defect.release.name || defect.release._id
+    }`,
+    value: defect._id,
+  }));
 }
 
 export function fetchEntities(type) {
