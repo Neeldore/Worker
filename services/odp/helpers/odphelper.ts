@@ -17,9 +17,7 @@ import { cloudGet, cloudPut } from './credManager';
 
 export function changeStatus(id: string) {
   let entityDetails: any;
-  let isDefect = id.includes('DEF');
-  const detailsFn = isDefect ? getDefectDetails : getStoryDetails;
-  const detailsApi = isDefect ? DEFECT_DETAILS : STORY_DETAILS;
+  const [isDefect, detailsFn, detailsApi] = loadInitialData(id);
 
   return detailsFn(id)
     .then((resp) => respDataFormatter(resp, isDefect))
@@ -33,12 +31,10 @@ export function changeStatus(id: string) {
 }
 
 export function assignToQa(id) {
-  let entityDetails: any;
-  let nameOfQa: any = {};
-  let serviceDef: Array<any> = [];
-  let isDefect = id.includes('DEF');
-  const detailsFn = isDefect ? getDefectDetails : getStoryDetails;
-  const detailsApi = isDefect ? DEFECT_DETAILS : STORY_DETAILS;
+  let entityDetails: any,
+    nameOfQa: any = {},
+    serviceDef: Array<any> = [];
+  const [isDefect, detailsFn, detailsApi] = loadInitialData(id);
 
   return Promise.all([
     detailsFn(id)
@@ -190,10 +186,22 @@ const userSourceWrapper = () =>
 
 const setDefaultValues = (entityDetails, isDefect, nameOfQa) => {
   entityDetails.status = isDefect ? 'Ready for QA' : 'Completed';
-  entityDetails.newEnvironmentVariables = 'No';
-  entityDetails.newErrorMessages = 'No';
-  entityDetails.newMigrationScripts = 'No';
-  entityDetails.newSchemaChanges = 'No';
-  entityDetails.newSetupScripts = 'No';
   entityDetails.assignedTo = { _id: nameOfQa._id };
+  [
+    'newEnvironmentVariables',
+    'newErrorMessages',
+    'newMigrationScripts',
+    'newSchemaChanges',
+    'newSetupScripts',
+  ].forEach((no) => (entityDetails[no] = 'No'));
 };
+
+const loadInitialData = (id) => {
+  const isDefect = isDefectFn(id);
+  return [
+    isDefect,
+    isDefect ? getDefectDetails : getStoryDetails,
+    isDefect ? DEFECT_DETAILS : STORY_DETAILS,
+  ];
+};
+const isDefectFn = (id) => id.includes('DEF');
