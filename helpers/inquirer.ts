@@ -63,6 +63,17 @@ export const odpBaseInquirer = () => {
     ],
   });
 };
+export const gitBaseInquirer = () => {
+  return basicInquirer({
+    type: 'list',
+    name: 'Git',
+    message: 'Select type',
+    choices: [
+      { name: 'Create branch for story/defect', value: 'CBS' },
+      { name: 'Create Named branch', value: 'CNB' },
+    ],
+  });
+};
 
 export const odpDefectInquirer = () => {
   return basicInquirer({
@@ -78,9 +89,17 @@ export const odpDefectInquirer = () => {
   });
 };
 
-export const odpStatusesInquirer = (isDefect) => {
+export const odpStatusesInquirer = (isDefect, status = '') => {
+  const statusMapper = {
+    IP: isDefect ? 'Dev In Progress' : 'In Progress',
+    O: isDefect ? 'Open' : 'Identified',
+    PR: 'Awaiting PR Approval',
+  };
+
   const statuses = isDefect
     ? ['Awaiting PR Approval', 'Dev In Progress', 'Open', 'Cannot Reproduce']
     : ['In Progress', 'Awaiting PR Approval'];
-  return easyInquirer(statuses, 'status');
+  return status
+    ? { status: statusMapper[status] }
+    : easyInquirer(statuses, 'status');
 };

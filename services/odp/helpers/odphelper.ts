@@ -15,14 +15,14 @@ import {
 import { checkOrEscape, _throw } from '../../../helpers/misc';
 import { cloudGet, cloudPut } from './credManager';
 
-export function changeStatus(id: string) {
+export function changeStatus(id: string, status = '') {
   let entityDetails: any;
   const [isDefect, detailsFn, detailsApi] = loadInitialData(id);
 
   return detailsFn(id)
     .then((resp) => respDataFormatter(resp, isDefect))
     .then((resp) => (entityDetails = resp))
-    .then(() => odpStatusesInquirer(isDefect))
+    .then(() => odpStatusesInquirer(isDefect, status))
     .then((ans) => checkOrEscape(ans, 'status'))
     .then((ans) => (entityDetails.status = ans.status))
     .then(() => cloudPut(detailsApi, id, entityDetails, true))
@@ -30,7 +30,7 @@ export function changeStatus(id: string) {
     .catch((e) => {});
 }
 
-export function assignToQa(id) {
+export function assignToQa(id, to = '') {
   let entityDetails: any,
     nameOfQa: any = {},
     serviceDef: Array<any> = [];
@@ -45,8 +45,12 @@ export function assignToQa(id) {
     ),
   ])
     .then(([resp, _]) => (nameOfQa = resp.nameOfTheQa || {}))
-    .then(() => getUser(nameOfQa).then((ans) => (nameOfQa = ans)))
-    .then(() => getComponents(serviceDef).then((ans) => ans.components))
+    .then(() => getUser(nameOfQa, to).then((ans) => (nameOfQa = ans)))
+    .then(() =>
+      getComponents(serviceDef).then(
+        (ans) => (entityDetails.componentsAffected = ans.components)
+      )
+    )
     .then(() => setDefaultValues(entityDetails, isDefect, nameOfQa))
     .then(() => cloudPut(detailsApi, id, entityDetails, true))
     .then((resp: any) => handleLogging(resp, id, entityDetails))
@@ -117,6 +121,7 @@ export const getStoryDetails = (id, skipCheck = false) =>
 const getServiceDefinition = (isDefect) =>
   cloudGet(GET_SERVICE_DEF + '/' + (isDefect ? 'SRVC2022' : 'SRVC2020'), {
     select: 'definition',
+    app: 'XCRO',
   }).then((resp) => {
     try {
       return resp.data.definition.find(
@@ -139,7 +144,7 @@ const handleLogging = (resp, id, entityDetails) =>
       )
     : console.log('\n Some error occured \n' + JSON.stringify(resp.data));
 
-const userSource = (_existinAnsers, name) =>
+const userSource = (_existinAnsers, name, skipCall = true) =>
   cloudGet(
     GET_CLOUD_USERS,
     {
@@ -147,7 +152,7 @@ const userSource = (_existinAnsers, name) =>
       select: 'name',
       filter: { name: `/${name}/` },
     },
-    true
+    skipCall
   ).then((resp) =>
     resp.data.map((users) => ({
       name: users.name,
@@ -163,26 +168,39 @@ const getComponents = (serviceDef) =>
     choices: [{ name: 'just web', value: 'xcro_web' }, ...serviceDef],
   });
 
-function getUser(nameOfQa) {
-  if (nameOfQa._id) {
-    return easyInquirer(
-      [
-        {
-          name: nameOfQa.name,
-          value: { _id: nameOfQa._id, name: nameOfQa.name },
-        },
-        { name: 'Someone else', value: 'SE' },
-      ],
-      'qa',
-      'assign to selected QA or someone else ?'
-    ).then((ans) => (ans.qa === 'SE' ? userSourceWrapper() : ans));
+function getUser(nameOfQa, to = '') {
+  if (to) {
+    return userSource({}, to, false).then((resp) => {
+      if (resp && resp.length) {
+        return resp[0].value;
+      } else {
+        console.error('No user for that name');
+        _throw();
+      }
+    });
   } else {
-    return userSourceWrapper();
+    if (nameOfQa._id) {
+      return easyInquirer(
+        [
+          {
+            name: nameOfQa.name,
+            value: { _id: nameOfQa._id, name: nameOfQa.name },
+          },
+          { name: 'Someone else', value: 'SE' },
+        ],
+        'qa',
+        'assign to selected QA or someone else ?'
+      ).then((ans) => (ans.qa === 'SE' ? userSourceWrapper() : ans.qa));
+    } else {
+      return userSourceWrapper();
+    }
   }
 }
 
 const userSourceWrapper = () =>
-  autoCompleteInquirer('qa', 'Type the name of the user', userSource);
+  autoCompleteInquirer('qa', 'Type the name of the user', userSource).then(
+    (resp) => resp.qa
+  );
 
 const setDefaultValues = (entityDetails, isDefect, nameOfQa) => {
   entityDetails.status = isDefect ? 'Ready for QA' : 'Completed';

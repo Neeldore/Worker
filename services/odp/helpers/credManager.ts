@@ -18,7 +18,7 @@ export async function cloudLogin() {
 
 export async function isTokenValid(token) {
   return await get(CLOUD_CHECK, { Authorization: token }).then(
-    (resp) => resp.status !== 401
+    (resp) => resp.status === 200
   );
 }
 export async function cloudCheck() {

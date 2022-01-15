@@ -1,12 +1,26 @@
-import { basicInquirer } from '../../helpers/inquirer';
+import { GO_BACK, EXIT } from '../../helpers/constants';
+import { execute } from '../../helpers/executioner';
+import { basicInquirer, gitBaseInquirer } from '../../helpers/inquirer';
 
-export function git() {
-  return basicInquirer({
-    type: 'list',
-    name: 'Git',
-    message: 'Select type',
-    choices: ['Create branch for story/defect', 'Create Named branch'],
-  });
+export async function git() {
+  const functionMapper = {
+    CNB: gen,
+    CBS: gen,
+  };
+  for (;;) {
+    const ans = await gitBaseInquirer();
+    if (ans.ODP === GO_BACK.value) {
+      return;
+    } else if (ans.ODP === EXIT.value) {
+      process.exit(0);
+    } else {
+      await functionMapper[ans.Git]();
+    }
+  }
 }
 
-export function createBranch() {}
+export function gen() {
+  return execute('git status').then((val) => {
+    console.log('val', val);
+  });
+}

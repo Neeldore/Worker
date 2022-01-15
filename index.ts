@@ -1,8 +1,8 @@
+import { commandModeMapper } from './commandMode';
 import { EXIT } from './helpers/constants';
 import { defaultInquirer } from './helpers/inquirer';
 import { connectRedis } from './helpers/redis';
 import { getService } from './helpers/serviceMapper';
-import { assignToQa, changeStatus } from './services/odp/helpers/odphelper';
 
 const client: any = connectRedis();
 
@@ -19,13 +19,8 @@ client.then(async () => {
       }
     }
   } else {
-    const adhocFunctionMapper = {
-      readyForQA: () => assignToQa(process.argv[3]),
-      changeStatus: () => changeStatus(process.argv[3]),
-    };
-
+    const adhocFunctionMapper = commandModeMapper;
     await adhocFunctionMapper[process.argv[2]]();
-
     process.exit(0);
   }
 });
