@@ -11,8 +11,6 @@ export async function git() {
     const ans = await gitBaseInquirer();
     if (ans.ODP === GO_BACK.value) {
       return;
-    } else if (ans.ODP === EXIT.value) {
-      process.exit(0);
     } else {
       await functionMapper[ans.Git]();
     }

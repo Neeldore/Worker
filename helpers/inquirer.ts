@@ -63,6 +63,7 @@ export const odpBaseInquirer = () => {
     ],
   });
 };
+
 export const gitBaseInquirer = () => {
   return basicInquirer({
     type: 'list',
@@ -71,6 +72,21 @@ export const gitBaseInquirer = () => {
     choices: [
       { name: 'Create branch for story/defect', value: 'CBS' },
       { name: 'Create Named branch', value: 'CNB' },
+      GO_BACK,
+    ],
+  });
+};
+
+export const dmBaseInquirer = () => {
+  return basicInquirer({
+    type: 'list',
+    name: 'DM',
+    message: 'Select type',
+    choices: [
+      { name: 'Dev', value: 'Dev' },
+      { name: '58', value: 'FiveEight' },
+      { name: 'sit6', value: 'sit6' },
+      GO_BACK,
     ],
   });
 };
