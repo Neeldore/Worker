@@ -27,10 +27,10 @@ export async function post(url, body, header = {}) {
       return { status: resp.status, data: resp.data };
     })
     .catch((e) => {
-      if (e.response.status !== 400) {
+      if (e.response.status !== 400 && e.response.status !== 401) {
         console.error(JSON.stringify(e));
       }
-      return { status: e.response.status };
+      return { status: e.response.status, resp: JSON.stringify(e) };
     })
     .finally(() => {
       clearInterval(loader);
@@ -56,10 +56,10 @@ export async function get(url, header = {}, params = {}) {
       return { status: resp.status, data: resp.data };
     })
     .catch((e) => {
-      if (e.response.status !== 400) {
+      if (e.response.status !== 400 && e.response.status !== 401) {
         console.error(JSON.stringify(e));
       }
-      return { status: e.response.status };
+      return { status: e.response.status, resp: JSON.stringify(e) };
     })
     .finally(() => {
       clearInterval(loader);
@@ -85,10 +85,10 @@ export async function put(url, id, body, header = {}) {
       return { status: resp.status, data: resp.data };
     })
     .catch((e) => {
-      if (e.response.status !== 400) {
+      if (e.response.status !== 400 && e.response.status !== 401) {
         console.error(JSON.stringify(e));
       }
-      return { status: e.response.status };
+      return { status: e.response.status, resp: JSON.stringify(e) };
     })
     .finally(() => {
       clearInterval(loader);

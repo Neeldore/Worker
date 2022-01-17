@@ -1,5 +1,6 @@
 import { GO_BACK } from '../../helpers/constants';
-import { dmBaseInquirer } from '../../helpers/inquirer';
+import { dmBaseInquirer, easyInquirer } from '../../helpers/inquirer';
+import { createAccount, createDeal } from './helpers/dmHelper';
 
 export async function dm() {
   const functionMapper = {
@@ -17,8 +18,28 @@ export async function dm() {
   }
 }
 
-export function dev() {
-  console.log('i ams works ');
+export async function dev() {
+  const fnMapper = {
+    CA: createAccount,
+    CLD: createDeal,
+    CD: createDeal,
+  };
+
+  for (;;) {
+    const ans = await easyInquirer(
+      [
+        { name: 'Create account', value: 'CA' },
+        { name: 'Create live deal', value: 'CLD' },
+        { name: 'Create draft deal', value: 'CD' },
+      ],
+      'dev'
+    );
+    if (ans.dev === GO_BACK.value) {
+      return;
+    } else {
+      await fnMapper[ans.dev]();
+    }
+  }
 }
 export function fiveEight() {
   console.log('i ams works ');
