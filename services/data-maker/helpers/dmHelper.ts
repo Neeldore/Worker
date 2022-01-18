@@ -27,8 +27,8 @@ export function createDeal() {
   let dealData: any;
 
   return devPost(DEAL_BASIC, getDealJSON())
-    .then((_dealData) => (dealData = _dealData))
-    .then((resp) => console.log('*** created deal ***', resp.data.refId))
+    .then((_dealData) => (dealData = _dealData.data))
+    .then((resp) => console.log('*** created deal ***', resp.refId))
     .then(() => createEntity('createAndAddAccount', dealData))
     .then(() => createEntity('createParty', dealData))
     .catch((e) => console.log('e', e));
