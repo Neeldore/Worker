@@ -179,7 +179,7 @@ export function _createParty(dealData, skipCheck = true) {
     getPartyJSON(dealData.refId, dealData.dealId, dealData.new.processingUnits),
     skipCheck
   )
-    .then((_partyData) => (partyData = _partyData))
+    .then((_partyData) => (partyData = _partyData.data))
     .then(() => createEntity('createPartyContacts', partyData))
     .then(() => createEntity('createPartyAccounts', partyData))
     .catch((e) => console.log('e', e));
