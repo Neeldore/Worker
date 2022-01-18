@@ -10,6 +10,7 @@ import {
   WORKITEM,
   WORKITEM_LIST,
 } from '../../../helpers/constants';
+import { _throw } from '../../../helpers/misc';
 import {
   devCheck,
   devGet,
@@ -32,8 +33,8 @@ import {
 const entityMapper = {
   createAndAddAccount: _createAndAddAccount,
   createParty: _createParty,
-  createPartyContacts: (reqData) => _createPartyEntities('contacts', reqData),
-  createPartyAccounts: (reqData) => _createPartyEntities('accounts', reqData),
+  createPartyContacts: _createPartyContacts,
+  createPartyAccounts: _createPartyAccounts,
 };
 
 const PartyEntitiesMapper = {
@@ -49,7 +50,7 @@ const PartyEntitiesMapper = {
   },
 };
 
-export async function createDeal() {
+export async function createDeal(draft = false) {
   let dealData: any;
   let dealBasicData: any;
   await devCheck();
@@ -58,12 +59,13 @@ export async function createDeal() {
     .then((resp) => console.log('*** created deal ***', resp.refId))
     .then(() => createEntity('createAndAddAccount', dealData))
     .then(() => createEntity('createParty', dealData))
+    .then(() => (draft ? _throw('ONDRAFT') : ''))
     .then(() => moveToChecker(dealData, true))
     .then(() => getDealDetails(dealData, true))
     .then((_dealBasicData) => (dealBasicData = _dealBasicData))
     .then(() => saveComments(dealBasicData, true))
     .then(() => makeDealLive(dealData, true))
-    .catch((e) => console.log('e', e));
+    .catch((e) => {});
 }
 
 export function moveToChecker(dealData, skipCheck = false) {
@@ -185,11 +187,23 @@ export function _createParty(dealData, skipCheck = true) {
     .catch((e) => console.log('e', e));
 }
 
-export function _createPartyEntities(type, partyData, skipCheck = true) {
-  const { api, fn, msg } = PartyEntitiesMapper[type];
+export function _createPartyContacts(partyData, skipCheck = true) {
   return devPost(
-    api,
-    fn(
+    DEAL_PARTY_CONTACT,
+    getPartyContactJSON(
+      partyData.uniqueId,
+      partyData.refId,
+      partyData.dealId,
+      partyData.partyId
+    ),
+    skipCheck
+  ).catch((e) => console.log('e', e));
+}
+
+export function _createPartyAccounts(partyData, skipCheck = true) {
+  return devPost(
+    DEAL_PARTY_ACCOUNT,
+    getPartyAccountsJSON(
       partyData.uniqueId,
       partyData.refId,
       partyData.dealId,

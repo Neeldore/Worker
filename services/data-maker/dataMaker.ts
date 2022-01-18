@@ -21,8 +21,8 @@ export async function dm() {
 export async function dev() {
   const fnMapper = {
     CA: createAccount,
-    CLD: createDeal,
-    CD: createDeal,
+    CLD: () => createDeal(),
+    CD: () => createDeal(true),
   };
 
   for (;;) {
