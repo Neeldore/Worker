@@ -26,3 +26,13 @@ export const ODP_CHECK = 'https://odp.xcro.appveen.com/api/a/rbac/check';
 export const ODP_LOGIN_KEY = 'ODP_LOGIN_KEY';
 export const DEAL_BASIC =
   'https://dev.xcro.appveen.com/deals/api/dealWorkItem/initiate/BASIC';
+export const DEAL_ACCOUNTS =
+  'https://dev.xcro.appveen.com/deals/api/dealWorkItem/initiate/ACCOUNTS';
+export const DEAL_PARTY_BASIC =
+  'https://dev.xcro.appveen.com/deals/api/dealWorkItem/initiate/PARTIES';
+export const DEAL_PARTY_CONTACT =
+  'https://dev.xcro.appveen.com/deals/api/dealWorkItem/initiate/PARTY_CONTACTS';
+export const DEAL_PARTY_ACCOUNT =
+  'https://dev.xcro.appveen.com/deals/api/dealWorkItem/initiate/PARTY_ACCOUNTS';
+export const DEAL_ACCOUNTS_INFO =
+  'https://dev.xcro.appveen.com/cbp/api/v1/accounts';
