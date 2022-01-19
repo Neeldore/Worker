@@ -1,4 +1,5 @@
 import { executeMultiple } from '../../helpers/executioner';
+import { changeStatus } from '../odp/helpers/odphelper';
 
 export async function genDev(defectId) {
   await gcd()
@@ -14,7 +15,7 @@ export async function genDev(defectId) {
     });
 }
 
-export async function pushDev(defectId, msg = '') {
+export async function pushDev(defectId, msg = '', pr = false) {
   const branchName = defectId.includes('DEF')
     ? `defect/${defectId}_dev`
     : `story/${defectId}_dev`;
@@ -23,6 +24,7 @@ export async function pushDev(defectId, msg = '') {
     `${defectId} - ${defectId.includes('DEF') ? 'Fixed' : 'Implemented'}`;
   await goToBranch(branchName)
     .then(() => acp(branchName, message))
+    .then(() => (pr ? () => changeStatus(defectId, 'PR') : ''))
     .catch((e) => {
       console.log(e);
     });

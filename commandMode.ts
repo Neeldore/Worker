@@ -12,6 +12,6 @@ export const commandModeMapper = {
   createAccount: () => createAccount(process.argv[3] && +process.argv[3]),
   genDev: () => genDev(process.argv[3]),
   gcd: () => gcd(),
-  pushDev: () => pushDev(process.argv[3], process.argv[4]),
+  pushDev: () => pushDev(process.argv[3], process.argv[4], !!process.argv[5]),
   acp: () => acp(process.argv[3], process.argv[4]),
 };
