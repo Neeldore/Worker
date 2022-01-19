@@ -48,7 +48,12 @@ export function createBranch(name) {
   });
 }
 export function pg() {
-  return executeMultiple(['git fetch', 'git pull']).catch((e) => {
+  return executeMultiple([
+    'git fetch',
+    'git stash',
+    'git pull',
+    'git stash pop',
+  ]).catch((e) => {
     console.log(e);
   });
 }
