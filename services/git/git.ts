@@ -1,24 +1,80 @@
-import { GO_BACK, EXIT } from '../../helpers/constants';
-import { execute } from '../../helpers/executioner';
-import { basicInquirer, gitBaseInquirer } from '../../helpers/inquirer';
+import { executeMultiple } from '../../helpers/executioner';
 
-export async function git() {
-  const functionMapper = {
-    CNB: gen,
-    CBS: gen,
-  };
-  for (;;) {
-    const ans = await gitBaseInquirer();
-    if (ans.ODP === GO_BACK.value) {
-      return;
-    } else {
-      await functionMapper[ans.Git]();
-    }
-  }
+export async function genDev(defectId) {
+  await gcd()
+    .then(() => pg())
+    .then(() =>
+      defectId.includes('DEF')
+        ? `defect/${defectId}_dev`
+        : `story/${defectId}_dev`
+    )
+    .then((name) => createBranch(name))
+    .catch((e) => {
+      console.log(e);
+    });
 }
 
-export function gen() {
-  return execute('git status').then((val) => {
-    console.log('val', val);
+export async function pushDev(defectId, msg = '') {
+  const branchName = defectId.includes('DEF')
+    ? `defect/${defectId}_dev`
+    : `story/${defectId}_dev`;
+  const message =
+    msg ||
+    `${defectId} - ${defectId.includes('DEF') ? 'Fixed' : 'Implemented'}`;
+  await goToBranch(branchName)
+    .then(() => acp(branchName, message))
+    .catch((e) => {
+      console.log(e);
+    });
+}
+
+export function gcd() {
+  return executeMultiple(['git checkout development']).catch((e) => {
+    console.log(e);
+  });
+}
+
+export function gc64() {
+  return executeMultiple(['git checkout release/6.4']).catch((e) => {
+    console.log(e);
+  });
+}
+
+export function createBranch(name) {
+  return executeMultiple([`git checkout -b ${name}`]).catch((e) => {
+    console.log(e);
+  });
+}
+export function pg() {
+  return executeMultiple(['git fetch', 'git pull']).catch((e) => {
+    console.log(e);
+  });
+}
+export function goToBranch(branch) {
+  return executeMultiple([`git checkout ${branch}`]).catch((e) => {
+    console.log(e);
+  });
+}
+export async function acp(branch, msg) {
+  return await gitAdd()
+    .then(() => gitCommit(msg))
+    .then(() => gitPush(branch))
+    .catch((e) => {
+      console.log(e);
+    });
+}
+export function gitAdd() {
+  return executeMultiple([`git add .`]).catch((e) => {
+    console.log(e);
+  });
+}
+export function gitCommit(msg) {
+  return executeMultiple([`git commit -m "${msg}"`]).catch((e) => {
+    console.log(e);
+  });
+}
+export function gitPush(branch) {
+  return executeMultiple([`git push origin ${branch}`]).catch((e) => {
+    console.log(e);
   });
 }
