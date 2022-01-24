@@ -225,6 +225,7 @@ export const getPartyJSON = (refId, dealId, processingUnits) => {
       dealTemplateId: 'T1007',
       linkedFromMdm: false,
       processingUnits,
+      country: 'IND',
     },
   };
 };

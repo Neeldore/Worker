@@ -53,8 +53,8 @@ export function pg() {
     'git stash',
     'git pull',
     'git stash pop',
-  ]).catch((e) => {
-    console.log(e);
+  ]).catch((e: string) => {
+    if (!e.includes('Error: Command failed: git stash pop')) console.log(e);
   });
 }
 export function goToBranch(branch) {
