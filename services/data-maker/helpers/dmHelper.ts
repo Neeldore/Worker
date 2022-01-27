@@ -23,6 +23,7 @@ import {
   getAccountsJSON,
   getDealAccountsJSON,
   getDealJSON,
+  getEcommPartyJson,
   getMakeLiveJSON,
   getPartyAccountsJSON,
   getPartyContactJSON,
@@ -33,6 +34,7 @@ import {
 const entityMapper = {
   createAndAddAccount: _createAndAddAccount,
   createParty: _createParty,
+  createEcommParty: _createEcommParty,
   createPartyContacts: _createPartyContacts,
   createPartyAccounts: _createPartyAccounts,
 };
@@ -58,6 +60,9 @@ export async function createDeal(draft = false) {
     .then((_dealData) => (dealData = _dealData.data))
     .then((resp) => console.log('*** created deal ***', resp.refId))
     .then(() => createEntity('createAndAddAccount', dealData))
+    .then((accData) =>
+      createEntity('createEcommParty', { accData, dealData }, 1)
+    )
     .then(() => createEntity('createParty', dealData))
     .then(() => (draft ? _throw('ONDRAFT') : ''))
     .then(() => moveToChecker(dealData, true))
@@ -133,7 +138,7 @@ export async function createEntity(type, reqData, n = 2) {
     await devCheck();
   }
 
-  await Promise.all(
+  return await Promise.all(
     Array(n)
       .fill(true)
       .map((_) => entityMapper[type](reqData))
@@ -179,6 +184,33 @@ export function _createParty(dealData, skipCheck = true) {
   return devPost(
     DEAL_PARTY_BASIC,
     getPartyJSON(dealData.refId, dealData.dealId, dealData.new.processingUnits),
+    skipCheck
+  )
+    .then((_partyData) => (partyData = _partyData.data))
+    .then(() => createEntity('createPartyContacts', partyData))
+    .then(() => createEntity('createPartyAccounts', partyData))
+    .catch((e) => console.log('e', e));
+}
+export function _createEcommParty({ dealData, accData }, skipCheck = true) {
+  let partyData: any = {};
+  let debitAccounts = [
+    {
+      accountNumber: accData[0].data.new.accountNumber,
+      name: accData[0].data.new.name,
+      country: accData[0].data.new.country,
+      currency: accData[0].data.new.currency,
+      status: 'ACTIVE',
+      isUsed: false,
+    },
+  ];
+  return devPost(
+    DEAL_PARTY_BASIC,
+    getEcommPartyJson(
+      dealData.refId,
+      dealData.dealId,
+      dealData.new.processingUnits,
+      debitAccounts
+    ),
     skipCheck
   )
     .then((_partyData) => (partyData = _partyData.data))

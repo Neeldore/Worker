@@ -230,6 +230,46 @@ export const getPartyJSON = (refId, dealId, processingUnits) => {
   };
 };
 
+export const getEcommPartyJson = (
+  refId,
+  dealId,
+  processingUnits,
+  debitAccounts
+) => {
+  const partyName = `SampleParty${getRandomNumber(10000, 1000)}`;
+  const participantId = `Participant - ${getRandomNumber(10000, 1000)}`;
+  return {
+    operation: 'POST',
+    parentId: '',
+    uniqueId: '',
+    refId,
+    dealId,
+    section: 'PARTIES',
+    new: {
+      name: partyName,
+      customerId: partyName,
+      responsibility: 'PR1001',
+      internal: false,
+      isNeutral: false,
+      remarks: 'testing remarks',
+      eCommerceEnabled: true,
+      participantId,
+      debitAccounts,
+      attributes: [],
+      status: 'Active',
+      kycCompleted: true,
+      validFrom: null,
+      validUntil: null,
+      dealId,
+      refId,
+      dealTemplateId: 'T1110',
+      linkedFromMdm: false,
+      country: 'IND',
+      processingUnits,
+    },
+  };
+};
+
 export const getPartyContactJSON = (parentId, refId, dealId, partyId) => {
   return {
     operation: 'POST',
