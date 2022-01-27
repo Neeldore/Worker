@@ -1,4 +1,4 @@
-import { executeMultiple } from '../../helpers/executioner';
+import { execute, executeMultiple } from '../../helpers/executioner';
 import { changeStatus } from '../odp/helpers/odphelper';
 
 export async function genDev(defectId) {
@@ -48,14 +48,9 @@ export function createBranch(name) {
   });
 }
 export function pg() {
-  return executeMultiple([
-    'git fetch',
-    'git stash',
-    'git pull',
-    'git stash pop',
-  ]).catch((e: string) => {
-    if (!e.includes('Error: Command failed: git stash pop')) console.log(e);
-  });
+  return executeMultiple(['git fetch', 'git stash', 'git pull'])
+    .then((e) => execute('git stash pop'))
+    .catch((e) => console.log(e));
 }
 export function goToBranch(branch) {
   return executeMultiple([`git checkout ${branch}`]).catch((e) => {

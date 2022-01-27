@@ -11,7 +11,9 @@ export const execute = async (command, silent = true) => {
       if (!silent) console.log('stdout', stdout);
       resolve(stdout);
     });
-  }).catch((e) => console.log(e));
+  }).catch((e) => {
+    if (e && e.cmd !== 'git stash pop') console.log(JSON.stringify(e));
+  });
 };
 
 export const executeMultiple = async (comms: Array<any>) => {
