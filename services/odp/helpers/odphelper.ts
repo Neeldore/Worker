@@ -53,7 +53,9 @@ export function assignToQa(id, to = '') {
     )
     .then(() => setDefaultValues(entityDetails, isDefect, nameOfQa))
     .then(() => cloudPut(detailsApi, id, entityDetails, true))
-    .then((resp: any) => handleLogging(resp, id, entityDetails))
+    .then((resp: any) =>
+      handleLogging(resp, id, entityDetails, `And assigned to ${nameOfQa.name}`)
+    )
     .catch((e) => {});
 }
 
@@ -137,10 +139,10 @@ const respDataFormatter = (resp, isDefect) =>
     ? resp.data
     : _throw('cannot find ' + isDefect ? 'Defect' : 'Story');
 
-const handleLogging = (resp, id, entityDetails) =>
+const handleLogging = (resp, id, entityDetails, extraStr = '') =>
   resp.status === 200
     ? console.log(
-        `\n Changed the status of ${id} to ${entityDetails.status} \n`
+        `\n Changed the status of ${id} to ${entityDetails.status} ${extraStr} \n`
       )
     : console.log('\n Some error occured \n' + JSON.stringify(resp.data));
 
