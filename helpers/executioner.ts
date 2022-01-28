@@ -12,7 +12,7 @@ export const execute = async (command, silent = true) => {
       resolve(stdout);
     });
   }).catch((e) => {
-    if (e && e.cmd !== 'git stash pop') console.log(JSON.stringify(e));
+    if (e && e.cmd !== 'git stash pop') console.log(e);
   });
 };
 
