@@ -1,6 +1,7 @@
 import { formatDate, getRandomNumber } from '../../../helpers/misc';
+import { faker } from '@faker-js/faker';
 export const getAccountsJSON = () => {
-  const accNo = `NJTestACC${getRandomNumber()}`;
+  const accNo = faker.finance.account();
   return {
     _id: accNo,
     accountNumber: accNo,
@@ -33,7 +34,7 @@ export const getAccountsJSON = () => {
       numberDecimal: null,
       dropdown: null,
       date: null,
-      aadharNo: '123132',
+      aadharNo: faker.random.numeric(16),
       vehicleNUmber: null,
       mothersMaidenName: '123',
     },
@@ -210,7 +211,7 @@ export const getDealJSON = () => {
 };
 
 export const getPartyJSON = (refId, dealId, processingUnits) => {
-  const partyName = `SampleParty${getRandomNumber(10000, 1000)}`;
+  const partyName = `${faker.company.companyName()}`;
   return {
     operation: 'POST',
     parentId: '',
@@ -244,8 +245,8 @@ export const getEcommPartyJson = (
   processingUnits,
   debitAccounts
 ) => {
-  const partyName = `SampleParty${getRandomNumber(10000, 1000)}`;
-  const participantId = `Participant - ${getRandomNumber(10000, 1000)}`;
+  const partyName = `${faker.company.companyName()}`;
+  const participantId = `${partyName}`;
   return {
     operation: 'POST',
     parentId: '',
@@ -287,11 +288,11 @@ export const getPartyContactJSON = (parentId, refId, dealId, partyId) => {
     dealId,
     section: 'PARTY_CONTACTS',
     new: {
-      name: `Sample Party contact ${getRandomNumber(1000, 10)}`,
-      email: 'abc@abc.com',
-      mobileNumber: '',
-      workPhone: '123456789',
-      designation: 'Manager',
+      name: `${faker.name.findName()}`,
+      email: `${faker.internet.email()}`,
+      mobileNumber: `${faker.random.numeric(10)}` + '',
+      workPhone: `${faker.random.numeric(10)}` + '',
+      designation: faker.name.jobType(),
       address: {
         street: 'Street 1',
         country: 'India',
@@ -324,12 +325,12 @@ export const getPartyAccountsJSON = (parentId, refId, dealId, partyId) => {
       paymentDetails: {
         date: '',
         accountIban: 'IBAN',
-        to: `${getRandomNumber(100000000, 1000000)}`,
-        name: `Test party - ${getRandomNumber(100000000, 1000000)}`,
+        to: `${faker.finance.account()}`,
+        name: `${faker.finance.accountName()}`,
         beneficiaryAddressLine1: '',
         beneficiaryAddressLine2: '',
         beneficiaryCountry: 'IN',
-        beneficiaryBankBic: 'ICICI123456',
+        beneficiaryBankBic: `${faker.finance.bic()}`,
         priority: '',
         purposeOfPayment: '',
         charges: '',
