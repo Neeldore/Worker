@@ -11,14 +11,7 @@ import {
   WORKITEM_LIST,
 } from '../../../helpers/constants';
 import { _throw } from '../../../helpers/misc';
-import {
-  devCheck,
-  devGet,
-  devPost,
-  devPut,
-  ODPCheck,
-  odpPost,
-} from './credManager';
+import { devCheck, devGet, devPost, devPut, ODPCheck, odpPost } from './credManager';
 import {
   getAccountsJSON,
   getDealAccountsJSON,
@@ -60,9 +53,7 @@ export async function createDeal(draft = false) {
     .then((_dealData) => (dealData = _dealData.data))
     .then((resp) => console.log('*** created deal ***', resp.refId))
     .then(() => createEntity('createAndAddAccount', dealData))
-    .then((accData) =>
-      createEntity('createEcommParty', { accData, dealData }, 1)
-    )
+    .then((accData) => createEntity('createEcommParty', { accData, dealData }, 1))
     .then(() => createEntity('createParty', dealData))
     .then(() => (draft ? _throw('ONDRAFT') : ''))
     .then(() => moveToChecker(dealData, true))
@@ -83,17 +74,11 @@ export function moveToChecker(dealData, skipCheck = false) {
     checklist: [],
     action: 'Submit',
   };
-  return devPost(COMPLETE_USER_TASK_DEV, input, skipCheck).then((_) =>
-    console.log('Moved to checker ')
-  );
+  return devPost(COMPLETE_USER_TASK_DEV, input, skipCheck).then((_) => console.log('Moved to checker '));
 }
 
 export function getDealDetails(dealData, skipCheck = false) {
-  return devGet(
-    `${WORKITEM_LIST}/${dealData.dealId}/BASIC`,
-    {},
-    skipCheck
-  ).then((resp) => resp.data[0]);
+  return devGet(`${WORKITEM_LIST}/${dealData.dealId}/BASIC`, {}, skipCheck).then((resp) => resp.data[0]);
 }
 
 export function getWorkItemInfo(dealData, skipCheck = false) {
@@ -122,11 +107,7 @@ export function saveComments(basicDealData, skipCheck = false) {
 }
 
 export function makeDealLive(dealData, skipCheck = false) {
-  return devPost(
-    COMPLETE_USER_TASK_DEV,
-    getMakeLiveJSON(dealData.dealId, dealData.refId, devUsername),
-    skipCheck
-  ).then(() => {
+  return devPost(COMPLETE_USER_TASK_DEV, getMakeLiveJSON(dealData.dealId, dealData.refId, devUsername), skipCheck).then(() => {
     console.log('Deal is live ', dealData.refId);
   });
 }
@@ -160,32 +141,23 @@ export async function createAccount(n = 1) {
 }
 
 export function _createAccount(skipCheck = false) {
-  return odpPost(ODP_CREATE_ACCOUNT, getAccountsJSON(), skipCheck).then(
-    (resp) => {
-      console.log('*** created account ***', resp.data._id);
-      return resp.data;
-    }
-  );
+  return odpPost(ODP_CREATE_ACCOUNT, getAccountsJSON(), skipCheck).then((resp) => {
+    console.log('*** created account ***', resp.data._id);
+    return resp.data;
+  });
 }
 
 export function _createAndAddAccount(dealData) {
   return _createAccount(true)
     .then((resp) => {
-      return devPost(
-        DEAL_ACCOUNTS,
-        getDealAccountsJSON(dealData.refId, dealData.dealId, resp._id)
-      );
+      return devPost(DEAL_ACCOUNTS, getDealAccountsJSON(dealData.refId, dealData.dealId, resp._id));
     })
     .catch((e) => console.log('e', e));
 }
 
 export function _createParty(dealData, skipCheck = true) {
   let partyData: any = {};
-  return devPost(
-    DEAL_PARTY_BASIC,
-    getPartyJSON(dealData.refId, dealData.dealId, dealData.new.processingUnits),
-    skipCheck
-  )
+  return devPost(DEAL_PARTY_BASIC, getPartyJSON(dealData.refId, dealData.dealId, dealData.new.processingUnits), skipCheck)
     .then((_partyData) => (partyData = _partyData.data))
     .then(() => createEntity('createPartyContacts', partyData))
     .then(() => createEntity('createPartyAccounts', partyData))
@@ -203,16 +175,7 @@ export function _createEcommParty({ dealData, accData }, skipCheck = true) {
       isUsed: false,
     },
   ];
-  return devPost(
-    DEAL_PARTY_BASIC,
-    getEcommPartyJson(
-      dealData.refId,
-      dealData.dealId,
-      dealData.new.processingUnits,
-      debitAccounts
-    ),
-    skipCheck
-  )
+  return devPost(DEAL_PARTY_BASIC, getEcommPartyJson(dealData.refId, dealData.dealId, dealData.new.processingUnits, debitAccounts), skipCheck)
     .then((_partyData) => (partyData = _partyData.data))
     .then(() => createEntity('createPartyContacts', partyData))
     .then(() => createEntity('createPartyAccounts', partyData))
@@ -220,27 +183,13 @@ export function _createEcommParty({ dealData, accData }, skipCheck = true) {
 }
 
 export function _createPartyContacts(partyData, skipCheck = true) {
-  return devPost(
-    DEAL_PARTY_CONTACT,
-    getPartyContactJSON(
-      partyData.uniqueId,
-      partyData.refId,
-      partyData.dealId,
-      partyData.partyId
-    ),
-    skipCheck
-  ).catch((e) => console.log('e', e));
+  return devPost(DEAL_PARTY_CONTACT, getPartyContactJSON(partyData.uniqueId, partyData.refId, partyData.dealId, partyData.partyId), skipCheck).catch(
+    (e) => console.log('e', e)
+  );
 }
 
 export function _createPartyAccounts(partyData, skipCheck = true) {
-  return devPost(
-    DEAL_PARTY_ACCOUNT,
-    getPartyAccountsJSON(
-      partyData.uniqueId,
-      partyData.refId,
-      partyData.dealId,
-      partyData.partyId
-    ),
-    skipCheck
-  ).catch((e) => console.log('e', e));
+  return devPost(DEAL_PARTY_ACCOUNT, getPartyAccountsJSON(partyData.uniqueId, partyData.refId, partyData.dealId, partyData.partyId), skipCheck).catch(
+    (e) => console.log('e', e)
+  );
 }
