@@ -30,8 +30,50 @@ export async function pushDev(defectId, msg = '', pr = false) {
     });
 }
 
+export async function gen10(defectId) {
+  const branchName = defectId.includes('DEF')
+    ? `defect/${defectId}_1_0`
+    : `story/${defectId}_1_0`;
+  const to = defectId.includes('DEF')
+    ? `defect/${defectId}_dev`
+    : `story/${defectId}_dev`;
+  await genDev(defectId)
+    .then(() => gc10())
+    .then(() => pg())
+    .then(() => createBranch(branchName))
+    .then(() => goToBranch(to))
+    .catch((e) => {
+      console.log(e);
+    });
+}
+
+export async function push10(defectId, msg = '', pr = false) {
+  const branchName = defectId.includes('DEF')
+    ? `defect/${defectId}_1_0`
+    : `story/${defectId}_1_0`;
+
+  const to = defectId.includes('DEF')
+    ? `defect/${defectId}_dev`
+    : `story/${defectId}_dev`;
+
+  await pushDev(defectId, msg, pr)
+    .then(() => goToBranch(branchName))
+    .then(() => cherryPick(to))
+    .then(() => gitPush(branchName))
+    .then(() => (pr ? () => changeStatus(defectId, 'PR') : ''))
+    .catch((e) => {
+      console.log(e);
+    });
+}
+
 export function gcd() {
   return executeMultiple(['git checkout development']).catch((e) => {
+    console.log(e);
+  });
+}
+
+export function cherryPick(to) {
+  return executeMultiple([`git cherry-pick ${to}`]).catch((e) => {
     console.log(e);
   });
 }
@@ -42,15 +84,21 @@ export function gc64() {
   });
 }
 
+export function gc10() {
+  return executeMultiple(['git checkout release/1.0']).catch((e) => {
+    console.log(e);
+  });
+}
+
 export function createBranch(name) {
   return executeMultiple([`git checkout -b ${name}`]).catch((e) => {
     console.log(e);
   });
 }
 export function pg() {
-  return executeMultiple(['git fetch', 'git stash', 'git pull'])
-    .then((e) => execute('git stash pop'))
-    .catch((e) => console.log(e));
+  return executeMultiple(['git fetch && git pull']).catch((e) =>
+    console.log(e)
+  );
 }
 export function goToBranch(branch) {
   return executeMultiple([`git checkout ${branch}`]).catch((e) => {
