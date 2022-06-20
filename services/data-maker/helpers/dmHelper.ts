@@ -6,6 +6,7 @@ import {
   DEAL_PARTY_ACCOUNT,
   DEAL_PARTY_BASIC,
   DEAL_PARTY_CONTACT,
+  GET_DEAL_ACCOUNTS,
   ODP_CREATE_ACCOUNT,
   WORKITEM,
   WORKITEM_LIST,
@@ -52,9 +53,9 @@ export async function createDeal(draft = false) {
   return devPost(DEAL_BASIC, getDealJSON())
     .then((_dealData) => (dealData = _dealData.data))
     .then((resp) => console.log('*** created deal ***', resp.refId))
-    .then(() => createEntity('createAndAddAccount', dealData))
+    .then(() => createEntity('createAndAddAccount', dealData, 8))
     .then((accData) => createEntity('createEcommParty', { accData, dealData }, 1))
-    .then(() => createEntity('createParty', dealData))
+    .then(() => createEntity('createParty', dealData, 4))
     .then(() => (draft ? _throw('ONDRAFT') : ''))
     .then(() => moveToChecker(dealData, true))
     .then(() => getDealDetails(dealData, true))
@@ -112,7 +113,7 @@ export function makeDealLive(dealData, skipCheck = false) {
   });
 }
 
-export async function createEntity(type, reqData, n = 2) {
+export async function createEntity(type, reqData, n = 4) {
   if (type === 'createAndAddAccount') {
     await ODPCheck();
   } else {
@@ -163,23 +164,41 @@ export function _createParty(dealData, skipCheck = true) {
     .then(() => createEntity('createPartyAccounts', partyData))
     .catch((e) => console.log('e', e));
 }
-export function _createEcommParty({ dealData, accData }, skipCheck = true) {
+
+export function _createEcommParty({ dealData }, skipCheck = true) {
   let partyData: any = {};
-  let debitAccounts = [
-    {
-      accountNumber: accData[0].data.new.accountNumber,
-      name: accData[0].data.new.name,
-      country: accData[0].data.new.country,
-      currency: accData[0].data.new.currency,
-      status: 'ACTIVE',
-      isUsed: false,
-    },
-  ];
-  return devPost(DEAL_PARTY_BASIC, getEcommPartyJson(dealData.refId, dealData.dealId, dealData.new.processingUnits, debitAccounts), skipCheck)
-    .then((_partyData) => (partyData = _partyData.data))
-    .then(() => createEntity('createPartyContacts', partyData))
-    .then(() => createEntity('createPartyAccounts', partyData))
-    .catch((e) => console.log('e', e));
+  return devGet(GET_DEAL_ACCOUNTS.replace('{dealID}', dealData.dealId))
+    .then((accountsResp) => accountsResp.data)
+    .then((accounts: Array<any>) => {
+      return Promise.all(
+        accounts
+          .filter((_, index) => index < accounts.length / 2)
+          .map((account) => {
+            return new Promise((resolve, reject) => {
+              let debitAccounts = [
+                {
+                  accountNumber: account.accountNumber,
+                  name: account.name,
+                  country: account.country,
+                  currency: account.currency,
+                  status: 'ACTIVE',
+                  isUsed: false,
+                },
+              ];
+              return devPost(
+                DEAL_PARTY_BASIC,
+                getEcommPartyJson(dealData.refId, dealData.dealId, dealData.new.processingUnits, debitAccounts),
+                skipCheck
+              )
+                .then((_partyData) => (partyData = _partyData.data))
+                .then(() => createEntity('createPartyContacts', partyData))
+                .then(() => createEntity('createPartyAccounts', partyData))
+                .then(resolve)
+                .catch(reject);
+            });
+          })
+      ).catch((e) => console.log('e', e));
+    });
 }
 
 export function _createPartyContacts(partyData, skipCheck = true) {

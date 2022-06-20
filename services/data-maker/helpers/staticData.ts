@@ -114,10 +114,7 @@ export const getDealAccountsJSON = (refId, dealId, accountNumber) => {
 export const getDealJSON = () => {
   const refId = 'REF' + new Date().getTime();
   const today = formatDate(new Date(), 'Asia/Kolkata');
-  const dealName = `${getRandomNumber(10000, 1000)}-testdeal-${getRandomNumber(
-    10000,
-    1000
-  )}`;
+  const dealName = `${getRandomNumber(10000, 1000)}-testdeal-${getRandomNumber(10000, 1000)}`;
   return {
     operation: 'POST',
     parentId: '',
@@ -239,12 +236,7 @@ export const getPartyJSON = (refId, dealId, processingUnits) => {
   };
 };
 
-export const getEcommPartyJson = (
-  refId,
-  dealId,
-  processingUnits,
-  debitAccounts
-) => {
+export const getEcommPartyJson = (refId, dealId, processingUnits, debitAccounts) => {
   const partyName = `${faker.company.companyName()}`;
   const participantId = `${partyName}`;
   return {
@@ -329,7 +321,7 @@ export const getPartyAccountsJSON = (parentId, refId, dealId, partyId) => {
         name: `${faker.finance.accountName()}`,
         beneficiaryAddressLine1: '',
         beneficiaryAddressLine2: '',
-        beneficiaryCountry: 'IN',
+        beneficiaryCountry: 'IND',
         beneficiaryBankBic: `${faker.finance.bic()}`,
         priority: '',
         purposeOfPayment: '',
